@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor Accessor
+
+@model User
+
+<div class="container">
+    <p>Username: @Accessor.HttpContext.Session.GetString("user")</p>
+    <a class="btn btn-danger" asp-controller="User" asp-action="Logout">Log out</a>
+    <form action="~/Home/Index" method="post" enctype="multipart/form-data">
+        <input type="file" name="fileInput"/>
+        <input class="btn btn-info" type="submit" value="Submit" />
+    </form>
+    <P>File đang đọc: @Model.FilePath</P>
+    <a class="btn btn-success" asp-controller="Home" asp-action="Export">Export</a>
+</div>
