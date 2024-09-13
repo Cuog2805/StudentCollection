@@ -118,7 +118,7 @@ namespace StudentCollection.Controllers
                                         }
                                         catch
                                         {
-                                            return View("Error", "Home");
+                                            student.Birth = DateTime.Now;
                                         }
                                         student.Gender = worksheet.Cells[row, 5].Text;
                                         student.CurrentResidence = worksheet.Cells[row, 8].Text;
@@ -155,7 +155,7 @@ namespace StudentCollection.Controllers
                                         }
                                         catch
                                         {
-                                            return View("Error", "Home");
+                                            student.Birth = DateTime.Now;
                                         }
                                         student.Gender = worksheet.Cells[row, 4].Text;
                                         student.CurrentResidence = worksheet.Cells[row, 8].Text;
@@ -202,6 +202,7 @@ namespace StudentCollection.Controllers
                 {
                     ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Sheet1");
 
+                    //create header
                     worksheet.Cells["A1:H1"].Merge = true;
                     worksheet.Cells["A2:H2"].Merge = true;
                     worksheet.Cells["I1:V1"].Merge = true;
@@ -259,14 +260,15 @@ namespace StudentCollection.Controllers
                     worksheet.Cells[7, 38].Value = "Ngày vào trường";
 
                     worksheet.Cells["A2:AL7"].Style.Font.Bold = true;
-
+                    //create body
                     int row = 8;
                     foreach (var student in userCurrent.Students.ToList())
                     {
-                        worksheet.Cells["A" + row.ToString()].Value = student.Stt;
-                        worksheet.Cells["B" + row.ToString()].Value = student.Class;
-                        worksheet.Cells["H" + row.ToString()].Value = student.Name;
+                        AsignValue(worksheet.Cells["A" + row.ToString()], student.Stt.ToString());
+                        AsignValue(worksheet.Cells["B" + row.ToString()], student.Class);
+                        AsignValue(worksheet.Cells["H" + row.ToString()], student.Name);
 
+                        //check tuoi
                         var studentAge = DateTime.Now.Year - student.Birth.Year;
                         //
                         if (studentAge > 18 || studentAge <= 5 || studentAge != (int.Parse(student.Class[0].ToString()) + 5))
@@ -275,53 +277,19 @@ namespace StudentCollection.Controllers
                         }
                         worksheet.Cells["I" + row.ToString()].Value = student.Birth.ToString("dd/MM/yyyy");
                         //
-                        if (string.IsNullOrWhiteSpace(student.Gender))
-                        {
-                            worksheet.Cells["J" + row.ToString()].Style.Fill.SetBackground(System.Drawing.Color.Red);
-                        }
-                        worksheet.Cells["J" + row.ToString()].Value = student.Gender;
-                        //
-                        if (string.IsNullOrWhiteSpace(student.CurrentResidence))
-                        {
-                            worksheet.Cells["K" + row.ToString()].Style.Fill.SetBackground(System.Drawing.Color.Red);
-                        }
-                        worksheet.Cells["K" + row.ToString()].Value = student.CurrentResidence;
-                        //
-                        if (string.IsNullOrWhiteSpace(student.PermanentResidece))
-                        {
-                            worksheet.Cells["L" + row.ToString()].Style.Fill.SetBackground(System.Drawing.Color.Red);
-                        }
-                        worksheet.Cells["L" + row.ToString()].Value = student.PermanentResidece;
-                        //
-                        if (string.IsNullOrWhiteSpace(student.BirthPlace))
-                        {
-                            worksheet.Cells["M" + row.ToString()].Style.Fill.SetBackground(System.Drawing.Color.Red);
-                        }
-                        worksheet.Cells["M" + row.ToString()].Value = student.BirthPlace;
-                        //
-                        if (string.IsNullOrWhiteSpace(student.FatherName))
-                        {
-                            worksheet.Cells["Z" + row.ToString()].Style.Fill.SetBackground(System.Drawing.Color.Red);
-                        }
-                        worksheet.Cells["Z" + row.ToString()].Value = student.FatherName;
-                        //
-                        if (string.IsNullOrWhiteSpace(student.MotherName))
-                        {
-                            worksheet.Cells["AC" + row.ToString()].Style.Fill.SetBackground(System.Drawing.Color.Red);
-                        }
-                        worksheet.Cells["AC" + row.ToString()].Value = student.MotherName;
-                        //
-                        if (string.IsNullOrWhiteSpace(student.PhoneNumber))
-                        {
-                            worksheet.Cells["AF" + row.ToString()].Style.Fill.SetBackground(System.Drawing.Color.Red);
-                        }
-                        worksheet.Cells["AF" + row.ToString()].Value = student.PhoneNumber;
+                        AsignValue(worksheet.Cells["J" + row.ToString()], student.Gender);
+                        AsignValue(worksheet.Cells["K" + row.ToString()], student.CurrentResidence);
+                        AsignValue(worksheet.Cells["L" + row.ToString()], student.PermanentResidece);
+                        AsignValue(worksheet.Cells["M" + row.ToString()], student.BirthPlace);
+                        AsignValue(worksheet.Cells["Z" + row.ToString()], student.FatherName);
+                        AsignValue(worksheet.Cells["AC" + row.ToString()], student.MotherName);
+                        AsignValue(worksheet.Cells["AF" + row.ToString()], student.PhoneNumber);
 
                         row++;
                     }
                     worksheet.Cells.AutoFitColumns();
-
                     package.Save();
+                    //
                 }
                 excelfile.Position = 0;
                 return File(excelfile, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "student_data.xlsx");
@@ -330,6 +298,14 @@ namespace StudentCollection.Controllers
             {
                 return View("Error");
             }
+        }
+        public static void AsignValue(ExcelRange worksheet, string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                worksheet.Style.Fill.SetBackground(System.Drawing.Color.Red);
+            }
+            worksheet.Value = value;
         }
         public IActionResult Error()
         {
