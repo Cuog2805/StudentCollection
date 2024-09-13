@@ -1,0 +1,46 @@
+﻿@model PaginatedList<Student>;
+
+<div class="d-flex">
+	@{
+		var prevDisabled = !(Model.PageIndex > 1) ? "disabled" : "";
+		var nextDisabled = !(Model.PageIndex < @Model.TotalPage) ? "disabled" : "";
+	}
+	<a class="btn btn-light @prevDisabled" asp-controller="Home" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)">Previous</a>
+	<span class="text-center m-2">@Model.PageIndex / @Model.TotalPage</span>
+	<a class="btn btn-light @nextDisabled" asp-controller="Home" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)">Next</a>
+</div>
+<table class="table">
+	<thead>
+		<tr>
+			<th class="p-2">STT</th>
+			<th class="p-2">Họ và tên</th>
+			<th class="p-2">Lớp</th>
+			<th class="p-2">Ngày sinh</th>
+			<th class="p-2">Giới tính</th>
+			<th class="p-2">Chỗ ở hiện nay</th>
+			<th class="p-2">Hộ khẩu thường trú</td>
+			<th class="p-2">Nơi sinh</th>
+			<th class="p-2">Tên cha</th>
+			<th class="p-2">Tên mẹ</td>
+			<th class="p-2">Số điện thoại</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var student in Model)
+		{
+			<tr>
+				<td class="p-2">@student.Stt</td>
+				<td class="p-2">@student.Name</td>
+				<td class="p-2">@student.Class</td>
+				<td class="p-2">@student.Birth.ToString("dd/MM/yyyy")</td>
+				<td class="p-2">@student.Gender</td>
+				<td class="p-2">@student.CurrentResidence</td>
+				<td class="p-2">@student.PermanentResidece</td>
+				<td class="p-2">@student.BirthPlace</td>
+				<td class="p-2">@student.FatherName</td>
+				<td class="p-2">@student.MotherName</td>
+				<td class="p-2">@student.PhoneNumber</td>
+			</tr>
+		}
+	</tbody>
+</table>

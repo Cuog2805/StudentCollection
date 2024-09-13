@@ -16,20 +16,21 @@ namespace StudentCollection.Controllers
             db = _db;
         }
 
-        public IActionResult Index(string filename)
+        public IActionResult Index(string filename, int? pageIndex=1)
         {
             if(HttpContext.Session.GetString("user") == null)
             {
                 return RedirectToAction("Login", "User");
             }
             string? userNameCurrent = HttpContext.Session.GetString("user");
-            var user = db.Users.FirstOrDefault(m => m.UserName == userNameCurrent);
+            var user = db.Users.Include(m => m.Students).FirstOrDefault(m => m.UserName == userNameCurrent);
             if (user != null)
             {
                 user.FilePath = filename != null ? filename : user.FilePath;
             }
             db.SaveChanges();
 
+            ViewData["pageIndex"] = pageIndex;
             return View(user);
         }
         [HttpPost]
@@ -171,8 +172,7 @@ namespace StudentCollection.Controllers
                             }
                         }
                         db.SaveChanges();
-
-                        return RedirectToAction("Index", "Home", new { fileInput.FileName });
+                        return RedirectToAction("Index", "Home", new { filename = fileInput.FileName });
                     }
                     else
                     {
@@ -202,76 +202,120 @@ namespace StudentCollection.Controllers
                 {
                     ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Sheet1");
 
-                    worksheet.Cells[1, 1].Value = "STT";
-                    worksheet.Cells[1, 2].Value = "Họ và tên";
-                    worksheet.Cells[1, 3].Value = "Lớp";
-                    worksheet.Cells[1, 4].Value = "Ngày sinh";
-                    worksheet.Cells[1, 5].Value = "Giới tính";
-                    worksheet.Cells[1, 6].Value = "Chỗ ở hiện nay";
-                    worksheet.Cells[1, 7].Value = "Hộ khẩu thường trú";
-                    worksheet.Cells[1, 8].Value = "Nơi sinh";
-                    worksheet.Cells[1, 9].Value = "Tên cha";
-                    worksheet.Cells[1, 10].Value = "Tên mẹ";
-                    worksheet.Cells[1, 11].Value = "Điện thoại";
+                    worksheet.Cells["A1:H1"].Merge = true;
+                    worksheet.Cells["A2:H2"].Merge = true;
+                    worksheet.Cells["I1:V1"].Merge = true;
+                    worksheet.Cells["I2:V2"].Merge = true;
+                    worksheet.Cells["A3:V3"].Merge = true;
+                    worksheet.Cells["A3:V3"].Merge = true;
+                    worksheet.Cells["A1:V3"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                    worksheet.Cells["A1:V3"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
 
-                    worksheet.Cells["A1:J1"].Style.Font.Bold = true;
+                    worksheet.Cells["A1"].Value = "PHÒNG GD&ĐT THÀNH PHỐ PHỦ LÝ";
+                    worksheet.Cells["I1"].Value = "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM";
+                    worksheet.Cells["A2"].Value = "TRƯỜNG THCS TRẦN QUỐC TOẢN";
+                    worksheet.Cells["I2"].Value = "Độc lập - Tự do - Hạnh phúc";
+                    worksheet.Cells["A3"].Value = "DANH SÁCH HỌC SINH";
+                    worksheet.Cells["A3"].Style.Font.Size = 20;
+                    worksheet.Row(3).Height = 50;
 
-                    int row = 2;
+                    worksheet.Cells[7, 1].Value = "STT";
+                    worksheet.Cells[7, 2].Value = "Lớp học";
+                    worksheet.Cells[7, 3].Value = "Mã học sinh";
+                    worksheet.Cells[7, 4].Value = "Mã MOET";
+                    worksheet.Cells[7, 5].Value = "Mã VEMIS";
+                    worksheet.Cells[7, 6].Value = "Sổ đăng bộ";
+                    worksheet.Cells[7, 7].Value = "Sổ định danh cá nhân";
+                    worksheet.Cells[7, 8].Value = "Họ tên";
+                    worksheet.Cells[7, 9].Value = "Ngày sinh";
+                    worksheet.Cells[7, 10].Value = "Giới tính";
+                    worksheet.Cells[7, 11].Value = "Chỗ ở hiện nay";
+                    worksheet.Cells[7, 12].Value = "Hộ khẩu thường trú";
+                    worksheet.Cells[7, 13].Value = "Nơi sinh";
+                    worksheet.Cells[7, 14].Value = "Quê quán";
+                    worksheet.Cells[7, 15].Value = "Chứng minh thư";
+                    worksheet.Cells[7, 16].Value = "Ngày cấp CMT";
+                    worksheet.Cells[7, 17].Value = "Nơi cấp CMT";
+                    worksheet.Cells[7, 18].Value = "Dân tộc";
+                    worksheet.Cells[7, 19].Value = "Tôn giáo";
+                    worksheet.Cells[7, 20].Value = "Diện chính sách";
+                    worksheet.Cells[7, 21].Value = "Diện khuyết tật";
+                    worksheet.Cells[7, 22].Value = "Cận nghèo";
+                    worksheet.Cells[7, 23].Value = "Đoàn viên";
+                    worksheet.Cells[7, 24].Value = "Đội viên";
+                    worksheet.Cells[7, 25].Value = "Con giáo viên";
+                    worksheet.Cells[7, 26].Value = "Tên cha";
+                    worksheet.Cells[7, 27].Value = "Nghề nghiệp cha";
+                    worksheet.Cells[7, 28].Value = "Năm sinh cha";
+                    worksheet.Cells[7, 29].Value = "Tên mẹ";
+                    worksheet.Cells[7, 30].Value = "Nghề nghiệp mẹ";
+                    worksheet.Cells[7, 31].Value = "Năm sinh mẹ";
+                    worksheet.Cells[7, 32].Value = "Điện thoại DĐ";
+                    worksheet.Cells[7, 33].Value = "Email";
+                    worksheet.Cells[7, 34].Value = "Điện thoại bố";
+                    worksheet.Cells[7, 35].Value = "Điện thoại mẹ";
+                    worksheet.Cells[7, 36].Value = "Ghi chú";
+                    worksheet.Cells[7, 37].Value = "Điện thoại học sinh";
+                    worksheet.Cells[7, 38].Value = "Ngày vào trường";
+
+                    worksheet.Cells["A2:AL7"].Style.Font.Bold = true;
+
+                    int row = 8;
                     foreach (var student in userCurrent.Students.ToList())
                     {
-                        worksheet.Cells[row, 1].Value = student.Stt;
-                        worksheet.Cells[row, 2].Value = student.Name;
-                        worksheet.Cells[row, 3].Value = student.Class;
+                        worksheet.Cells["A" + row.ToString()].Value = student.Stt;
+                        worksheet.Cells["B" + row.ToString()].Value = student.Class;
+                        worksheet.Cells["H" + row.ToString()].Value = student.Name;
 
                         var studentAge = DateTime.Now.Year - student.Birth.Year;
                         //
                         if (studentAge > 18 || studentAge <= 5 || studentAge != (int.Parse(student.Class[0].ToString()) + 5))
                         {
-                            worksheet.Cells[row, 4].Style.Font.Color.SetColor(System.Drawing.Color.Red);
+                            worksheet.Cells["I" + row.ToString()].Style.Font.Color.SetColor(System.Drawing.Color.Red);
                         }
-                        worksheet.Cells[row, 4].Value = student.Birth.ToString("dd/MM/yyyy");
+                        worksheet.Cells["I" + row.ToString()].Value = student.Birth.ToString("dd/MM/yyyy");
                         //
                         if (string.IsNullOrWhiteSpace(student.Gender))
                         {
-                            worksheet.Cells[row, 5].Style.Fill.SetBackground(System.Drawing.Color.Red);
+                            worksheet.Cells["J" + row.ToString()].Style.Fill.SetBackground(System.Drawing.Color.Red);
                         }
-                        worksheet.Cells[row, 5].Value = student.Gender;
+                        worksheet.Cells["J" + row.ToString()].Value = student.Gender;
                         //
                         if (string.IsNullOrWhiteSpace(student.CurrentResidence))
                         {
-                            worksheet.Cells[row, 6].Style.Fill.SetBackground(System.Drawing.Color.Red);
+                            worksheet.Cells["K" + row.ToString()].Style.Fill.SetBackground(System.Drawing.Color.Red);
                         }
-                        worksheet.Cells[row, 6].Value = student.CurrentResidence;
+                        worksheet.Cells["K" + row.ToString()].Value = student.CurrentResidence;
                         //
                         if (string.IsNullOrWhiteSpace(student.PermanentResidece))
                         {
-                            worksheet.Cells[row, 7].Style.Fill.SetBackground(System.Drawing.Color.Red);
+                            worksheet.Cells["L" + row.ToString()].Style.Fill.SetBackground(System.Drawing.Color.Red);
                         }
-                        worksheet.Cells[row, 7].Value = student.PermanentResidece;
+                        worksheet.Cells["L" + row.ToString()].Value = student.PermanentResidece;
                         //
                         if (string.IsNullOrWhiteSpace(student.BirthPlace))
                         {
-                            worksheet.Cells[row, 8].Style.Fill.SetBackground(System.Drawing.Color.Red);
+                            worksheet.Cells["M" + row.ToString()].Style.Fill.SetBackground(System.Drawing.Color.Red);
                         }
-                        worksheet.Cells[row, 8].Value = student.BirthPlace;
+                        worksheet.Cells["M" + row.ToString()].Value = student.BirthPlace;
                         //
                         if (string.IsNullOrWhiteSpace(student.FatherName))
                         {
-                            worksheet.Cells[row, 9].Style.Fill.SetBackground(System.Drawing.Color.Red);
+                            worksheet.Cells["Z" + row.ToString()].Style.Fill.SetBackground(System.Drawing.Color.Red);
                         }
-                        worksheet.Cells[row, 9].Value = student.FatherName;
+                        worksheet.Cells["Z" + row.ToString()].Value = student.FatherName;
                         //
                         if (string.IsNullOrWhiteSpace(student.MotherName))
                         {
-                            worksheet.Cells[row, 10].Style.Fill.SetBackground(System.Drawing.Color.Red);
+                            worksheet.Cells["AC" + row.ToString()].Style.Fill.SetBackground(System.Drawing.Color.Red);
                         }
-                        worksheet.Cells[row, 10].Value = student.MotherName;
+                        worksheet.Cells["AC" + row.ToString()].Value = student.MotherName;
                         //
                         if (string.IsNullOrWhiteSpace(student.PhoneNumber))
                         {
-                            worksheet.Cells[row, 11].Style.Fill.SetBackground(System.Drawing.Color.Red);
+                            worksheet.Cells["AF" + row.ToString()].Style.Fill.SetBackground(System.Drawing.Color.Red);
                         }
-                        worksheet.Cells[row, 11].Value = student.PhoneNumber;
+                        worksheet.Cells["AF" + row.ToString()].Value = student.PhoneNumber;
 
                         row++;
                     }
