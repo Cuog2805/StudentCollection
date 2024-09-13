@@ -15,7 +15,10 @@ namespace StudentCollection.Controllers
         {
             try
             {
-                HttpContext.Session.Clear();
+                if(HttpContext.Session.GetString("user") == null)
+                {
+                    return RedirectToAction("Login", "User", null);
+                }
                 User user = new User() { UserName = "", Password = "", FilePath = "" };
                 ViewBag.signinError = null;
                 return View(user);
