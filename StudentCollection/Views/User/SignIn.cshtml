@@ -6,39 +6,93 @@
 }
 @model User
 
-<h2>Sign In</h2>
-<form action="~/User/SignIn" method="post">
-    <table>
-        <tr>
-            <td>Username: </td>
-            <td>
-                <input type="text" name="UserName" value="@Model.UserName" />
-            </td>
-        </tr>
-        <tr>
-            <td>Mật khẩu: </td>
-            <td>
-                <input type="password" name="Password" value="@Model.Password" />
-            </td>
-        </tr>
-        <tr>
-            <td>Nhập lại mật khẩu: </td>
-            <td>
-                <input type="password" name="passwordRepeat" value="" />
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2">
-                <p class="text-danger">@ViewBag.signinError</p>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="submit" value="Sign in" />
-            </td>
-            <td>
-                <a class="btn btn-info" asp-controller="User" asp-action="Login" >Back</a>
-            </td>
-        </tr>
-    </table>
-</form>
+<div class="container entrance_section_container">
+    <div class="d-flex align-items-end px-5 ms-xl-4">
+        <p class="m-0">wel</p>
+        <p class="display-6 m-0">C</p>
+        <p class="m-0">ome</p>
+    </div>
+    <div class="row">
+        <div class="col-sm-6 text-black">
+            <div class="col align-items-center px-5 ms-xl-4 mt-5 pt-5 pt-xl-0 mt-xl-n5">
+
+                <h3 class="mb-3 pb-3">Trở về trang đăng nhập</h3>
+                <p>Hãy đăng nhập ngay !!</p>
+
+                <div class="col-md-6 pl-0 pt-1 mb-4">
+                    <a class="entrance_section_button btn-lg btn-block" asp-controller="User" asp-action="Login">Trở về</a>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="col-sm-6 text-black">
+            <div class="login_section_container d-flex align-items-center px-5 ms-xl-4 mt-5 pt-5 pt-xl-0 mt-xl-n5">
+
+                <form class="w-100" action="~/User/SignIn" method="post">
+
+                    <h3 class="mb-3 pb-3">Đăng ký</h3>
+
+                    <div class="form-outline mb-4">
+                        <label class="form-label">Tên đăng nhập</label>
+                        <input class="form-control form-control-lg" type="text" name="UserName" value="@Model.UserName" />
+                    </div>
+
+                    <div class="form-outline mb-4">
+                        <label class="form-label">Mật khẩu</label>
+                        <input class="form-control form-control-lg" type="password" name="Password" value="@Model.Password" />
+                    </div>
+
+                    <div class="form-outline mb-4">
+                        <label class="form-label">Nhập lại mật khẩu</label>
+                        <input class="form-control form-control-lg" type="password" name="passwordRepeat" value="" />
+                    </div>
+
+                    <div class="form-outline">
+                        <label class="form-label text-danger">@ViewBag.signinError</label>
+                    </div>
+
+                    <div class="col-md-6 pl-0 pt-1 mb-4">
+                        <input class="entrance_section_button btn-lg btn-block" type="submit" value="Đăng ký" />
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <style>
+        .entrance_section_container {
+            margin-top: 50px;
+            padding-top: 50px;
+            padding-bottom: 50px;
+            border: 1px solid #dadada;
+        }
+
+            .entrance_section_container label {
+                font-size: 18px;
+                color: #808080;
+                padding-top: 5px;
+                padding-left: 5px;
+            }
+
+            .login_section_container input {
+                border-radius: 0px;
+            }
+
+            .entrance_section_container .entrance_section_button {
+                border: 1px solid #3e3e3e;
+                border-radius: 0px;
+                background: #fff;
+                text-decoration: none;
+                color: #3e3e3e;
+                cursor: pointer;
+            }
+
+        .login_section_container {
+            border-left: 1px solid #dadada;
+        }
+    </style>
+}

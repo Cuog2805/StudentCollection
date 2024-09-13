@@ -1,19 +1,86 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+	ViewData["Title"] = "Home Page";
 }
 @model User
 
 <div class="container">
-    <h3>Chọn file</h3>
-    <form action="~/Home/Index" method="post" enctype="multipart/form-data">
-        <input type="file" name="fileInput"/>
-        <input class="btn btn-info" type="submit" value="Submit" />
-    </form>
-    <P>File đang đọc: @Model.FilePath</P>
-    <a class="btn btn-success" asp-controller="Home" asp-action="Export">Export</a>
+	<br />
+	<div class="upload-area" id="uploadfile">
+		<span id="uploadfile_display">Kéo thả files vào đây để tải lên</span>
+	</div>
+	<form action="~/Home/Index" method="post" enctype="multipart/form-data">
+		<input type="file" name="fileInput" id="file_input" style="display: none" />
+		<input class="btn btn-info mt-2 mb-4" type="submit" value="Tải lên" />
+	</form>
+	<p>File đang đọc: @Model.FilePath</p>
+	<a class="btn btn-success" asp-controller="Home" asp-action="Export">
+		Tải về file đã convert
+	</a>
 
-    <h3>Danh sách học sinh</h3>
-    <h4>Số học sinh: @Model.Students.Count</h4>
-    <h4>Số lớp: @Model.Students.DistinctBy(m => m.Class).Count()</h4>
-    @await Component.InvokeAsync("StudentMenu", new { pageIndex = ViewData["pageIndex"]})
+	<hr />
+	<h3>Danh sách học sinh</h3>
+	<h4>Số học sinh: @Model.Students.Count</h4>
+	<h4>Số lớp: @Model.Students.DistinctBy(m => m.Class).Count()</h4>
+	@await Component.InvokeAsync("StudentMenu", new { pageIndex = ViewData["pageIndex"]})
 </div>
+
+@section Scripts{
+	<script>
+		var uploadArea = $("#uploadfile");
+		var fileInput = $("#file_input");
+
+		uploadArea.on("click", function () {
+			fileInput.click();
+		});
+		uploadArea.on("dragover", function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			$(this).addClass('dragging');
+		});
+		uploadArea.on("dragleave", function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			$(this).removeClass('dragging');
+		});
+		uploadArea.on("drop", function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			$(this).removeClass('dragging');
+
+			var files = e.originalEvent.dataTransfer.files;
+
+			var dataTransfer = new DataTransfer();
+
+			for (var i = 0; i < files.length; i++) {
+				dataTransfer.items.add(files[i]);
+			}
+
+			fileInput[0].files = dataTransfer.files;
+		})
+		fileInput.on("change", function () {
+			if (fileInput[0].files.length > 0) {
+				$("#uploadfile_display").text("File đã chọn: " + fileInput[0].files[0].name);
+			}
+			console.log(fileInput[0].files[0].name)
+			console.log(fileInput[0].files[0])
+		});
+	</script>
+}
+
+<style>
+	.upload-area {
+		width: 100%;
+		height: 200px;
+		border: 2px dashed #ccc;
+		text-align: center;
+		line-height: 200px;
+		font-size: 20px;
+		color: #999;
+		margin-top: 20px;
+		cursor: pointer;
+	}
+
+		.upload-area.dragging {
+			background-color: #f0f0f0;
+		}
+</style>

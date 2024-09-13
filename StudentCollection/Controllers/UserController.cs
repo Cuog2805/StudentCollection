@@ -15,6 +15,7 @@ namespace StudentCollection.Controllers
         {
             try
             {
+                HttpContext.Session.Clear();
                 User user = new User() { UserName = "", Password = "", FilePath = "" };
                 ViewBag.signinError = null;
                 return View(user);
@@ -27,8 +28,8 @@ namespace StudentCollection.Controllers
         [HttpPost]
         public IActionResult SignIn(User user, string passwordRepeat)
         {
-            //try
-            //{
+            try
+            {
                 string signinError = string.Empty;
                 if (string.IsNullOrWhiteSpace(user.UserName) || string.IsNullOrWhiteSpace(user.Password))
                 {
@@ -50,14 +51,15 @@ namespace StudentCollection.Controllers
                 db.SaveChanges();
                 ViewBag.signinError = "Đăng ký thành công";
                 return View(new User());
-            //}
-            //catch
-            //{
-            //    return RedirectToAction("Error", "Home");
-            //}
+            }
+            catch
+            {
+                return RedirectToAction("Error", "Home");
+            }
         }
         public IActionResult Login(User user)
         {
+            HttpContext.Session.Clear();
             return View(user);
         }
         [HttpPost]
