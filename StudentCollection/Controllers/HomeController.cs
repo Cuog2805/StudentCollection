@@ -5,6 +5,7 @@ using StudentCollection.Data;
 using StudentCollection.Models;
 using System.Diagnostics;
 using System.Globalization;
+using static StudentCollection.Controllers.HomeController;
 
 namespace StudentCollection.Controllers
 {
@@ -47,6 +48,7 @@ namespace StudentCollection.Controllers
                         string userNameCurrent = HttpContext.Session.GetString("user");
                         User userCurrent = db.Users.Include(m => m.Students).First(m => m.UserName == userNameCurrent);
 
+                        //Xóa student list trước
                         if (userCurrent.Students != null)
                         {
                             if (userCurrent.Students.Count() > 0)
@@ -92,78 +94,25 @@ namespace StudentCollection.Controllers
                                 for (int row = headerRow; row < endRow; row++)
                                 {
                                     Student student = new Student();
-                                    if (worksheet.Name.ToString()[0] == '6')
+
+                                    //tạo lớp chứa tên các cột tương ứng với từng sheet
+                                    StudentCol studentCol1 = new StudentCol(row.ToString(), new string[] { "6" }, null, "B", "C", null, "D", "E", "H", "H", "H", "F", "G", "I");
+                                    StudentCol studentCol2 = new StudentCol(row.ToString(), new string[] { "7", "8", "9" }, null, "B", "C", null, "E", "D", "H", "H", "G", "I", "J", "K");
+
+                                    //gán giá trị vào model
+                                    var sheetName = worksheet.Name.ToString()[0].ToString();
+                                    if (studentCol1.SheetType.Contains(sheetName))
                                     {
+                                        student = AssignStudent(studentCol1, worksheet);
                                         student.Stt = stt;
                                         stt++;
-
-                                        student.Name = string.Concat(worksheet.Cells[row, 2].Text, " ", worksheet.Cells[row, 3].Text);
-                                        student.Class = worksheet.Name.ToString();
-                                        //birth
-                                        try
-                                        {
-                                            if (DateTime.TryParseExact(
-                                                worksheet.Cells[row, 4].Text,
-                                                new string[] { "dd/MM/yyyy", "d/M/yyyy", "MM/dd/yyyy", "M/d/yyyy" },
-                                                new CultureInfo("en-US"),
-                                                DateTimeStyles.None,
-                                                out DateTime bitrh))
-                                            {
-                                                student.Birth = bitrh;
-                                            }
-                                            else
-                                            {
-                                                student.Birth = DateTime.Now;
-                                            }
-                                        }
-                                        catch
-                                        {
-                                            student.Birth = DateTime.Now;
-                                        }
-                                        student.Gender = worksheet.Cells[row, 5].Text;
-                                        student.CurrentResidence = worksheet.Cells[row, 8].Text;
-                                        student.PermanentResidece = worksheet.Cells[row, 8].Text;
-                                        student.BirthPlace = worksheet.Cells[row, 8].Text;
-                                        student.FatherName = worksheet.Cells[row, 6].Text;
-                                        student.MotherName = worksheet.Cells[row, 7].Text;
-                                        student.PhoneNumber = worksheet.Cells[row, 9].Text.Count() == 9 ? string.Concat("0", worksheet.Cells[row, 9].Text) : worksheet.Cells[row, 9].Text;
                                         student.UserID = userCurrent.UserID;
                                     }
-                                    else
+                                    if (studentCol2.SheetType.Contains(sheetName))
                                     {
+                                        student = AssignStudent(studentCol2, worksheet);
                                         student.Stt = stt;
                                         stt++;
-
-                                        student.Name = string.Concat(worksheet.Cells[row, 2].Text, " ", worksheet.Cells[row, 3].Text);
-                                        student.Class = worksheet.Name.ToString();
-                                        //birth
-                                        try
-                                        {
-                                            if (DateTime.TryParseExact(
-                                                worksheet.Cells[row, 5].Text,
-                                                new string[] { "dd/MM/yyyy", "d/M/yyyy", "MM/dd/yyyy", "M/d/yyyy" },
-                                                new CultureInfo("en-US"),
-                                                DateTimeStyles.None,
-                                                out DateTime bitrh))
-                                            {
-                                                student.Birth = bitrh;
-                                            }
-                                            else
-                                            {
-                                                student.Birth = DateTime.Now;
-                                            }
-                                        }
-                                        catch
-                                        {
-                                            student.Birth = DateTime.Now;
-                                        }
-                                        student.Gender = worksheet.Cells[row, 4].Text;
-                                        student.CurrentResidence = worksheet.Cells[row, 8].Text;
-                                        student.PermanentResidece = worksheet.Cells[row, 8].Text;
-                                        student.BirthPlace = worksheet.Cells[row, 7].Text;
-                                        student.FatherName = worksheet.Cells[row, 9].Text;
-                                        student.MotherName = worksheet.Cells[row, 10].Text;
-                                        student.PhoneNumber = worksheet.Cells[row, 11].Text.Count() == 9 ? string.Concat("0", worksheet.Cells[row, 11].Text) : worksheet.Cells[row, 11].Text;
                                         student.UserID = userCurrent.UserID;
                                     }
 
@@ -306,6 +255,79 @@ namespace StudentCollection.Controllers
                 worksheet.Style.Fill.SetBackground(System.Drawing.Color.Red);
             }
             worksheet.Value = value;
+        }
+        public class StudentCol
+        {
+            public string RowIndex { get; set; }
+            public string? SttCol { get; set; }
+            public string? FirstNameCol { get; set; }
+            public string? LastNameCol { get; set; }
+            public string? ClassCol { get; set; }
+            public string? BirthCol { get; set; }
+            public string? GenderCol { get; set; }
+            public string? CurrentResidenceCol { get; set; }
+            public string? PermanentResideceCol { get; set; }
+            public string? BirthPlaceCol { get; set; }
+            public string? FatherNameCol { get; set; }
+            public string? MotherNameCol { get; set; }
+            public string? PhoneNumberCol { get; set; }
+            public string[] SheetType { get; set; }
+            public StudentCol(string rowIndex, string[] sheetType, string? stt, string? firstName, 
+                string? lastName, string? _class, 
+                string? birth, string? gender, string? currentResidence, string? permanentResidece, 
+                string? birthPlace, string? fatherName, string? motherName, string? phoneNumber)
+            {
+                RowIndex = rowIndex;
+                SheetType = sheetType;
+                SttCol = stt + RowIndex;
+                FirstNameCol = firstName + RowIndex;
+                LastNameCol = lastName + RowIndex;
+                ClassCol = _class + RowIndex;
+                BirthCol = birth + RowIndex;
+                GenderCol = gender + RowIndex;
+                CurrentResidenceCol = currentResidence + RowIndex;
+                PermanentResideceCol = permanentResidece + RowIndex;
+                BirthPlaceCol = birthPlace + RowIndex;
+                FatherNameCol = fatherName + RowIndex;
+                MotherNameCol = motherName + RowIndex;
+                PhoneNumberCol = phoneNumber + RowIndex;
+            }
+        }
+        public static Student AssignStudent(StudentCol studentCol, ExcelWorksheet worksheet)
+        {
+            Student student = new Student();
+
+            student.Name = string.Concat(worksheet.Cells[studentCol.FirstNameCol].Text, " ", worksheet.Cells[studentCol.LastNameCol].Text);
+            student.Class = worksheet.Name.ToString();
+            //birth
+            try
+            {
+                if (DateTime.TryParseExact(
+                    worksheet.Cells[studentCol.BirthCol].Text,
+                    new string[] { "dd/MM/yyyy", "d/M/yyyy", "MM/dd/yyyy", "M/d/yyyy" },
+                    new CultureInfo("en-US"),
+                    DateTimeStyles.None,
+                    out DateTime bitrh))
+                {
+                    student.Birth = bitrh;
+                }
+                else
+                {
+                    student.Birth = DateTime.Now;
+                }
+            }
+            catch
+            {
+                student.Birth = DateTime.Now;
+            }
+            student.Gender = worksheet.Cells[studentCol.GenderCol].Text;
+            student.CurrentResidence = worksheet.Cells[studentCol.CurrentResidenceCol].Text;
+            student.PermanentResidece = worksheet.Cells[studentCol.PermanentResideceCol].Text;
+            student.BirthPlace = worksheet.Cells[studentCol.BirthPlaceCol].Text;
+            student.FatherName = worksheet.Cells[studentCol.FatherNameCol].Text;
+            student.MotherName = worksheet.Cells[studentCol.MotherNameCol].Text;
+            student.PhoneNumber = worksheet.Cells[studentCol.PhoneNumberCol].Text.Count() == 9 ? string.Concat("0", worksheet.Cells[studentCol.PhoneNumberCol].Text) : worksheet.Cells[studentCol.PhoneNumberCol].Text;
+            return student;
         }
         public IActionResult Error()
         {
